@@ -19,5 +19,16 @@ pub fn build_cli() -> Command {
                             .required(true))
                 )
         )
-        .subcommand(Command::new("envoy").about("Commands that deal with envoy"))
+        .subcommand(Command::new("envoy")
+            .about("Commands that deal with envoy")
+            .subcommand(
+                Command::new("eds")
+                    .about("Show details of consul service")
+                    .arg(clap::Arg::new("service-name")
+                        .long("service-name")
+                        .help("The name of the service to show details for")
+                        .required(true))
+            )
+
+        )
 }
