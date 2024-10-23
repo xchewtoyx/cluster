@@ -40,7 +40,7 @@ pub struct SocketAddress {
     pub port_value: u16,
 }
 
-pub async fn transform_consul_to_eds(consul_services: Vec<Service>) -> Result<String, serde_json::Error> {
+pub async fn transform_consul_to_eds(consul_services: Vec<Service>) -> Result<EnvoyEndpoint, serde_json::Error> {
     // Group services by name
     let mut service_groups: HashMap<String, Vec<&Service>> = HashMap::new();
     for service in &consul_services {
@@ -75,9 +75,8 @@ pub async fn transform_consul_to_eds(consul_services: Vec<Service>) -> Result<St
         endpoints: vec![locality_lb_endpoints],
     };
 
-    let endpoint = EnvoyEndpoint {
+    Ok(EnvoyEndpoint {
         cluster_name: service_name,
         endpoints: vec![cluster_load_assignment],
-    };
-    serde_json::to_string(&endpoint)
+    })
 }

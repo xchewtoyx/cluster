@@ -1,10 +1,11 @@
-use std::collections::HashMap;
-use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use cached::proc_macro::cached;
 use clap::Parser;
+use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
 use once_cell::sync::Lazy;
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use warp::Filter;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Claims {
@@ -23,6 +24,20 @@ struct Args {
 }
 
 static CLIENT: Lazy<Client> = Lazy::new(|| Client::new());
+
+pub fn user_routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let user_token_route = warp::path!("api" / "user" / "token")
+        .and(warp::get())
+        .and(warp::header::optional::<String>("Authorization"))
+        .and_then(get_user_token);
+
+    let user_profile_route = warp::path!("api" / "user" / "profile")
+        .and(warp::get())
+        .and(warp::header::optional::<String>("Authorization"))
+        .and_then(get_user_profile);
+
+    user_token_route.or(user_profile_route)
+}
 
 pub async fn get_user_token(auth_header: Option<String>) -> Result<impl warp::Reply, warp::Rejection> {
     match parse_bearer(auth_header) {

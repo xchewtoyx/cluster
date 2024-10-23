@@ -1,5 +1,6 @@
 use cluster::consul::services;
 use cluster::envoy::eds;
+use serde_json;
 use std::error::Error;
 
 pub async fn eds(service_name: &str) {
@@ -14,5 +15,5 @@ async fn process_service(service_name: &str) -> Result<String, Box<dyn Error>> {
         .await?;
     let eds_json = eds::transform_consul_to_eds(services)
         .await?;
-    Ok(eds_json)
+    Ok(serde_json::to_string(&eds_json)?)
 }
