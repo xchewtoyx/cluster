@@ -1,6 +1,6 @@
 use serde::Serialize;
 use std::collections::HashMap;
-use crate::consul::api::Service;
+use crate::consul::services::Service;
 
 #[derive(Debug, Serialize)]
 pub struct EnvoyEndpoint {
@@ -45,15 +45,15 @@ pub async fn transform_consul_to_eds(consul_services: Vec<Service>) -> Result<St
     let mut service_groups: HashMap<String, Vec<&Service>> = HashMap::new();
     for service in &consul_services {
         service_groups
-            .entry(service.name.clone())
+            .entry(format!("cluster_{}", service.name))
             .or_default()
             .push(service);
     }
 
     // Create EDS response for the first service group
     // (assuming we're dealing with one service type at a time)
-    let service_name = consul_services[0].name.clone();
-    
+    let service_name = format!("cluster_{}", consul_services[0].name);
+
     let lb_endpoints: Vec<LbEndpoint> = consul_services
         .iter()
         .map(|service| LbEndpoint {

@@ -1,13 +1,20 @@
+use clap::Parser;
+
 mod cli;
-mod commands;
+use cli::parser::{Cli, Commands, ConsulCommands, EnvoyCommands};
 
 #[tokio::main]
 async fn main() {
-    let matches = cli::build_cli().get_matches();
+    let cli = Cli::parse();
 
-    match matches.subcommand() {
-        Some(("consul", sub_m)) => commands::consul_cmd::run(sub_m).await,
-        Some(("envoy", sub_m)) => commands::envoy::run(sub_m).await,
-        _ => eprintln!("Unknown command. Use --help for more info."),
+    match cli.command {
+        Commands::Consul { subcommand } => match subcommand {
+            ConsulCommands::Services => cli::consul_cmd::services().await,
+            ConsulCommands::Service { service_name } => cli::consul_cmd::service(&service_name).await,
+        },
+        Commands::Envoy { subcommand } => match subcommand {
+            EnvoyCommands::Eds { service_name } => cli::envoy::eds(&service_name).await,
+        },
+        Commands::Api { bind } => cli::api::serve(&bind).await,
     }
 }

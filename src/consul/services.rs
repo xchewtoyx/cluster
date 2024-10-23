@@ -7,16 +7,16 @@ use serde_json::Value;
 pub struct Service {
     #[serde(rename = "ServiceID")]
     pub id: String,
-    
+
     #[serde(rename = "ServiceName")]
     pub name: String,
-    
+
     #[serde(rename = "ServiceTags")]
     pub tags: Vec<String>,
-    
+
     #[serde(rename = "ServiceAddress")]
     pub address: String,
-    
+
     #[serde(rename = "ServicePort")]
     pub port: u16,
 }
