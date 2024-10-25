@@ -1,7 +1,7 @@
 use warp;
 use cluster::api::routes::routes;
 
-pub async fn serve(bindaddr: &str) {
+pub async fn serve(bindaddr: &str, consul_server: &str) {
     let bind_parts: Vec<&str> = bindaddr.split(':').collect();
     if bind_parts.len() != 2 {
         eprintln!("Invalid bind address format. Expected format: IP:PORT");
@@ -24,5 +24,5 @@ pub async fn serve(bindaddr: &str) {
         }
     };
 
-    warp::serve(routes()).run((bind_ip, bind_port)).await;
+    warp::serve(routes(consul_server)).run((bind_ip, bind_port)).await;
 }

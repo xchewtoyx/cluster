@@ -32,15 +32,15 @@ impl fmt::Display for Service {
     }
 }
 
-pub async fn get_services() -> Result<Value, Error> {
-    let url = "http://localhost:8500/v1/catalog/services";
+pub async fn get_services(consul_server: &str) -> Result<Value, Error> {
+    let url = format!("http://{}/v1/catalog/services", consul_server);
     let response = reqwest::get(url).await?;
     let json = response.json::<Value>().await?;
     Ok(json)
 }
 
-pub async fn get_service(service_name: &str) -> Result<Vec<Service>, Error> {
-    let url = format!("http://localhost:8500/v1/catalog/service/{}", service_name);
+pub async fn get_service(consul_server: &str, service_name: &str) -> Result<Vec<Service>, Error> {
+    let url = format!("{}/v1/catalog/service/{}", consul_server, service_name);
     let response = reqwest::get(url).await?;
     let json = response.json::<Vec<Service>>().await?;
     Ok(json)
